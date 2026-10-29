@@ -7,3 +7,6 @@ __pycache__/
 *.sld
 *.smx
 *.dds
+
+# local notes with machine paths
+HANDOFF.md
