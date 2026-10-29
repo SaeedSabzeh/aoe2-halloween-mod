@@ -358,10 +358,10 @@ def pumpkin_farms():
     dst = os.path.join(MOD, "resources", "_common", "terrain", "textures", "2x")
     os.makedirs(dst, exist_ok=True)
     # farms grow through fc1 (plowed) -> fc2 -> fc3 -> fm1 (grown), and fm2 when spent
-    stages = (("g_fc2.dds", dict(seed=1, radius=(2.2, 3.0), young=0.85)),
-              ("g_fc3.dds", dict(seed=1, radius=(3.4, 4.4), young=0.4)),
+    stages = (("g_fc2.dds", dict(seed=1, radius=(2.8, 3.6), young=0.85)),
+              ("g_fc3.dds", dict(seed=1, radius=(4.2, 5.4), young=0.35)),
               ("g_fm1.dds", dict(seed=1)),
-              ("g_fm2.dds", dict(seed=2, density=0.35, radius=(3.5, 5.0), rotten=True)))
+              ("g_fm2.dds", dict(seed=2, density=0.35, radius=(4.5, 6.0), rotten=True)))
     for name, kw in stages:
         header, rgba = farm.read_dds(os.path.join(src, name))
         rgba = farm.pumpkins3d(rgba, **kw)
