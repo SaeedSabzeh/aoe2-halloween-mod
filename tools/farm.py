@@ -111,3 +111,98 @@ def _pumpkin_top(d, cx, cy, r, base, rng):
     d.ellipse([cx - sr, cy - sr, cx + sr, cy + sr], fill=(92, 80, 40, 255))
     d.line([(cx, cy), (cx + rng.uniform(-1, 1) * r * 0.35, cy - r * 0.3)], fill=(84, 74, 36, 255),
            width=max(1, int(r * 0.12)))
+
+
+# The game lays ground textures on the map as diamonds: texture u runs towards the
+# screen's lower right and v towards the lower left, at about SCREEN_PER_TEX screen
+# pixels per texture pixel. Painting the inverse of that mapping means a sprite drawn
+# for the game camera shows up on screen undistorted, so pumpkins look round, not flat.
+SCREEN_PER_TEX = 0.25
+
+
+def _warp_into(tex, sprite, u0, v0, s=SCREEN_PER_TEX):
+    """Paint a screen-space RGBA sprite (hotspot at its bottom centre) into the texture at
+    (u0, v0), wrapping at the edges so the texture still tiles."""
+    H, W = tex.shape[:2]
+    sh, sw = sprite.shape[:2]
+    hx, hy = sw / 2, sh - 3
+    # texture window covering the sprite once projected back
+    reach = int(np.ceil((sw + 2 * sh) / s)) // 2 + 2
+    du, dv = np.meshgrid(np.arange(-reach, reach + 1), np.arange(-reach, reach + 1))
+    sx = (du - dv) * s + hx
+    sy = (du + dv) * s / 2 + hy
+    ix, iy = np.floor(sx).astype(int), np.floor(sy).astype(int)
+    inside = (ix >= 0) & (iy >= 0) & (ix < sw) & (iy < sh)
+    samp = np.zeros(du.shape + (4,), np.float64)
+    samp[inside] = sprite[iy[inside], ix[inside]]
+    a = (samp[..., 3] > 127)
+    if not a.any():
+        return
+    uu = (int(round(u0)) + du) % W
+    vv = (int(round(v0)) + dv) % H
+    tex[vv[a], uu[a], :3] = samp[a][:, :3]
+
+
+def _warp_shadow(tex, shadow, u0, v0, strength=0.45, s=SCREEN_PER_TEX):
+    H, W = tex.shape[:2]
+    sh, sw = shadow.shape
+    hx, hy = sw / 2, sh - 3
+    reach = int(np.ceil((sw + 2 * sh) / s)) // 2 + 2
+    du, dv = np.meshgrid(np.arange(-reach, reach + 1), np.arange(-reach, reach + 1))
+    ix = np.floor((du - dv) * s + hx).astype(int)
+    iy = np.floor((du + dv) * s / 2 + hy).astype(int)
+    inside = (ix >= 0) & (iy >= 0) & (ix < sw) & (iy < sh)
+    val = np.zeros(du.shape)
+    val[inside] = shadow[iy[inside], ix[inside]] / 255.0
+    m = val > 0
+    uu = (int(round(u0)) + du) % W
+    vv = (int(round(v0)) + dv) % H
+    tex[vv[m], uu[m], :3] = (tex[vv[m], uu[m], :3] * (1 - strength * val[m, None])).astype(np.uint8)
+
+
+def pumpkins3d(rgba, seed, radius=(4.5, 6.5), spacing=(150, 230), density=0.8, young=0.0, rotten=False):
+    """Lit 3D pumpkins along the crop rows, pre-warped so they read as solid in game."""
+    import harvest
+    rng = np.random.default_rng(seed)
+    H, W = rgba.shape[:2]
+    rows = _row_centres(rgba)
+    if len(rows) < 8:
+        rows = list(range(20, H, 43))
+    if rotten:
+        rows = list(range(0, H, 120))
+    spots = []
+    for y in rows:
+        x = rng.uniform(0, spacing[1])
+        while x < W:
+            if rng.random() < density:
+                spots.append((x + rng.uniform(-8, 8), y + rng.uniform(-6, 6)))
+            x += rng.uniform(*spacing)
+    # draw from the back of the screen to the front: smaller u+v is further away
+    spots.sort(key=lambda p: p[0] + p[1])
+    out = rgba.copy()
+    for u, v in spots:
+        kind = "white" if rng.random() < 0.1 else "plain"
+        spr, shad, _ = harvest.pumpkin(rng, kind, R=rng.uniform(*radius))
+        spr = spr.astype(np.float64)
+        if young:
+            spr[..., :3] = spr[..., :3] * (1 - young) + np.array([96, 132, 54]) * young * (spr[..., :3].mean(-1, keepdims=True) / 140)
+        if rotten:
+            spr[..., :3] *= np.array([0.6, 0.5, 0.42])
+        _warp_shadow(out, shad, u, v)
+        _warp_into(out, np.clip(spr, 0, 255), u, v)
+    return out
+
+
+def project_preview(tex, tiles=3, s=SCREEN_PER_TEX):
+    """What a farm of tiles x tiles roughly looks like on screen (for checking)."""
+    H, W = tex.shape[:2]
+    span = int(tiles * 190)   # texture pixels per tile, about
+    sw, sh = int(span * 2 * s) + 4, int(span * s) + 4
+    out = np.zeros((sh, sw, 3), np.uint8)
+    sy, sx = np.mgrid[:sh, :sw]
+    X, Y = sx - sw / 2, sy - 2
+    u = (X / s + 2 * Y / s) / 2
+    v = (2 * Y / s - X / s) / 2
+    ok = (u >= 0) & (v >= 0) & (u < span) & (v < span)
+    out[ok] = tex[v[ok].astype(int) % H, u[ok].astype(int) % W, :3]
+    return out
