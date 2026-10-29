@@ -32,7 +32,7 @@ It only changes graphics, so it works in multiplayer and ranked, and other playe
 ## Install
 
 Subscribe on the [mod page](https://www.ageofempires.com/mods/details/562122), or search for
-"Spider Sheep" in the game's mod browser (**Mods → Browse Mods**). You can also build it yourself (below).
+"Halloween" in the game's mod browser (**Mods → Browse Mods**). You can also build it yourself (below).
 Don't combine it with other mods that replace the same animals, trees or bushes.
 
 ## Build it yourself
