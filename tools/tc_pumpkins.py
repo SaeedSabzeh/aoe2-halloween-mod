@@ -6,22 +6,15 @@ import harvest
 def _layout(rng, flip):
     """Props as (dx, dy, lift, kind). dx/dy are ground spots relative to the building's
     hotspot; lift raises a prop onto something (a pumpkin on a hay bale)."""
-    j = lambda v: v + rng.uniform(-3, 3)
+    # Only the two outer corners are decorated. The front of the building is where sheep
+    # are brought and eaten, so it stays clear and carcasses are easy to spot.
+    j = lambda v: v + rng.uniform(-2, 2)
     P = []
-    # left corner: hay bale with pumpkins on it and around it, on a vine patch
-    P += [(j(-108), j(22), 0, "leaves"), (j(-118), j(10), 0, "bale")]
-    P += [(-118 + rng.uniform(-4, 4), 10.5, "BALE", "jack")]
-    P += [(j(-96), j(24), 0, rng.choice(["jack", "plain"])), (j(-128), j(22), 0, "gourd"),
-          (j(-86), j(32), 0, "jack"), (j(-104), j(32), 0, "plain")]
-    # entrance: skeleton slumped against a bale, a lantern at its feet, candles
-    P += [(j(-38), 44, 0, "bale"), (-22, 50, 0, "skeleton"), (j(-2), 56, 0, "jack"),
-          (j(8), 52, 0, "candle"), (j(13), 56, 0, "candle"), (j(-50), 55, 0, "candle")]
-    # right corner: pumpkin patch with bones in the leaves
-    P += [(j(102), j(24), 0, "leaves"), (j(92), j(18), 0, "white"), (j(112), j(16), 0, "jack"),
-          (j(106), j(30), 0, "plain"), (j(88), j(30), 0, "gourd"), (j(98), j(34), 0, "gourd"),
-          (j(124), j(30), 0, "pile")]
-    # a lantern either side of the doorway
-    P += [(j(-66), j(40), 0, "jack"), (j(62), j(40), 0, "jack"), (j(54), j(44), 0, "candle")]
+    # one corner: a hay bale with a lantern on top and a skeleton slumped against it
+    P += [(j(-118), 10, 0, "bale"), (-118 + rng.uniform(-3, 3), 10.5, "BALE", "jack"),
+          (-102, 16, 0, "skeleton"), (j(-130), j(20), 0, "plain")]
+    # the other corner: a lantern, a white pumpkin and a candle
+    P += [(j(112), j(14), 0, "jack"), (j(100), j(20), 0, "white"), (j(122), j(22), 0, "candle")]
     return [(dx * flip, dy, lift, kind) for dx, dy, lift, kind in P]
 
 

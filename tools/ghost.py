@@ -11,9 +11,10 @@ RIM = np.array([238, 250, 255])
 FLOAT = 4   # px the ghost hovers above the ground
 
 
-def ghostify(frame, opacity=1.0, float_px=FLOAT, wisp=True):
+def ghostify(frame, opacity=1.0, float_px=FLOAT, wisp=True, shadow=0.4):
     """frame: an SLD frame dict from sld.read; returns a new frame dict.
-    opacity 0..1 scales how solid the ghost is (used to fade it out on death)."""
+    opacity 0..1 scales how solid the ghost is (used to fade it out on death).
+    shadow scales the original shadow (0 = none); it stays on the ground while the ghost hovers."""
     if "main" not in frame["layers"]:
         return dict(width=frame["width"], height=frame["height"], hotspot=frame["hotspot"], unk=frame["unk"], layers={})
     m = frame["layers"]["main"]
@@ -43,8 +44,13 @@ def ghostify(frame, opacity=1.0, float_px=FLOAT, wisp=True):
         out[..., :3] = np.clip(col, 0, 255).astype(np.uint8)
         out[..., 3] = np.where(keep, 255, 0)
         out[~keep, :3] = 0
-    # hover: shift the sprite up; ghosts cast no shadow
+    # hover: shift the sprite up and leave a faint shadow on the ground below it
     y_up = min(float_px, y1 - (y1 % 4))
     y_up -= y_up % 4
     layers = {"main": dict(rect=(x1, y1 - y_up, x2, y2 - y_up), pixels=out)}
+    sh = frame["layers"].get("shadow")
+    if shadow and sh is not None and a.any():
+        faint = (sh["pixels"].astype(np.float64) * shadow * opacity).astype(np.uint8)
+        if faint.any():
+            layers["shadow"] = dict(rect=sh["rect"], pixels=faint)
     return dict(width=frame["width"], height=frame["height"], hotspot=frame["hotspot"], unk=frame["unk"], layers=layers)

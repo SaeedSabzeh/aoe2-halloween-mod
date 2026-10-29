@@ -266,7 +266,7 @@ def haunted_water():
             continue
         if f.startswith("a_fish_"):
             hdr, frames = sld.read(modkit.GAME_GFX + f)
-            out = [ghost.ghostify(fr, opacity=0.85, float_px=0, wisp=False) for fr in frames]
+            out = [ghost.ghostify(fr, opacity=0.85, float_px=0, wisp=False, shadow=0) for fr in frames]
         elif f.startswith("b_misc_fish_trap") and "foundation" not in f:
             hdr, frames = sld.read(modkit.GAME_GFX + f)
             out = [_haunt_trap(fr, 77) for fr in frames]
