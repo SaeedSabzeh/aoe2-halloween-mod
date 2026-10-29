@@ -1,0 +1,9 @@
+# build output and scratch files
+*.log
+__pycache__/
+/*.png
+
+# never commit game files or other people's mods
+*.sld
+*.smx
+*.dds
