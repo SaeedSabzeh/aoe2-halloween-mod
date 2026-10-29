@@ -31,8 +31,8 @@ It only changes graphics, so it works in multiplayer and ranked, and other playe
 
 ## Install
 
-The mod is coming to the in-game mod browser (**Mods → Browse Mods**) soon. Until then, build it
-yourself (below).
+Subscribe on the [mod page](https://www.ageofempires.com/mods/details/562122), or search for
+"Halloween" in the game's mod browser (**Mods → Browse Mods**). You can also build it yourself (below).
 Don't combine it with other mods that replace the same animals, trees or bushes.
 
 ## Build it yourself
@@ -92,3 +92,9 @@ Real files differ from it in a few places:
 - Age of Empires II © Microsoft Corporation. This mod was created under Microsoft's
   "[Game Content Usage Rules](https://www.xbox.com/en-US/developers/rules)" using assets from
   Age of Empires II: Definitive Edition, and it is not endorsed by or affiliated with Microsoft.
+
+## License
+
+The code in this repository is released under the [MIT License](LICENSE). The game assets it
+reads, and the sprites it builds from them, remain © Microsoft and are covered by the Game
+Content Usage Rules above, not by the MIT License.
