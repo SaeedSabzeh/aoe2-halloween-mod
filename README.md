@@ -63,8 +63,12 @@ The mod is written straight into your local mods folder. If the game isn't in th
 location, set `AOE2_DIR` to the install folder. To write the mod somewhere else, set `AOE2_MODS`.
 A full build takes about half an hour, mostly rendering the spider animations.
 
-There's also a second, smaller mod in the repo: `tools/build_pizza.py` turns sheep into pizzas and
-berry bushes into ketchup bottles.
+Two smaller mods build from the same toolkit:
+
+- `tools/build_animals.py` builds **Halloween Animals**: only the spider sheep, ghost animals,
+  skeleton boars and ghost fish, with trees, bushes, farms and buildings left alone. It works
+  alongside grid, tree and fish-border mods. Use it instead of the full mod, not together with it.
+- `tools/build_pizza.py` turns sheep into pizzas and berry bushes into ketchup bottles.
 
 ## The toolkit
 

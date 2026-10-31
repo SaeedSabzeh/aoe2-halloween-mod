@@ -9,6 +9,7 @@ import sld
 import modkit
 
 MOD = os.path.join(modkit.MODS_LOCAL, "Halloween")
+ANIMALS_MOD = os.path.join(modkit.MODS_LOCAL, "Halloween Animals")
 GFX = os.path.join(MOD, "resources", "_common", "drs", "graphics") + "/"
 TEX = modkit.GAME_DIR + "resources/_common/terrain/textures/2x/"
 W, H = 640, 360          # composed at game scale, then doubled
@@ -53,7 +54,12 @@ def _over(img, src, ox, oy, fn):
         d[m] = s[m][:, :3]
 
 
-def main(out_path):
+def main(out_path, animals=False):
+    """animals: thumbnail for the animals-only mod (game's own trees and Town Center)."""
+    global GFX
+    if animals:
+        GFX = os.path.join(ANIMALS_MOD, "resources", "_common", "drs", "graphics") + "/"
+    scenery = modkit.GAME_GFX if animals else GFX
     grass = Image.open(TEX + "g_gr2.dds").convert("RGB").resize((1024, 1024))
     img = np.asarray(grass, dtype=float)[:H, :W].copy()
     # dusk grade: cooler, darker towards the top, warm glow low in the frame
@@ -62,11 +68,11 @@ def main(out_path):
 
     items = []
     # haunted forest on the left (grid of webbed pines)
-    tree = sld.read(GFX + "n_tree_oak_x1.sld")[1]
+    tree = sld.read(scenery + "n_tree_oak_x1.sld")[1]
     for i in range(4):
         for j in range(4):
             items.append((40 + (i - j) * 48 + 120, 70 + (i + j) * 24, tree[(i * 5 + j * 3) % len(tree)]))
-    items.append((360, 205, frame("b_west_town_center_age2_x1")))
+    items.append((360, 205, sld.read(scenery + "b_west_town_center_age2_x1.sld")[1][0]))
     spider = sld.read(GFX + "a_herd_sheep_walkA_x1.sld")[1]
     for k, (x, y, d) in enumerate(((300, 300, 2), (345, 318, 1), (392, 296, 3), (258, 276, 14))):
         items.append((x, y, spider[d * 30 + k * 7]))
@@ -74,7 +80,10 @@ def main(out_path):
     items += [(560, 170, deer[10 * 30 + 4]), (600, 214, deer[10 * 30 + 15])]
     boar = sld.read(GFX + "a_hunt_boar_attackA_x1.sld")[1]
     items.append((520, 300, boar[6 * 45 + 20]))
-    items.append((150, 320, frame("n_forage_bush_x1", 1)))
+    if animals:
+        items += [(190, 318, spider[5 * 30 + 3]), (455, 340, boar[3 * 45 + 8]), (610, 300, deer[12 * 30 + 9])]
+    else:
+        items.append((150, 320, frame("n_forage_bush_x1", 1)))
     for x, y, fr in sorted(items, key=lambda t: t[1]):
         blit(img, fr, x, y)
 
@@ -91,8 +100,9 @@ def main(out_path):
         title, sub = font("impact.ttf", 118), font("georgiab.ttf", 34)
     except OSError:
         title = sub = ImageFont.load_default()
-    for text, f, y, fill in (("HALLOWEEN", title, 22, (255, 150, 34)),
-                             ("Spiders · Ghosts · Haunted Woods · Pumpkin Farms", sub, 160, (236, 226, 210))):
+    lines = ((("HALLOWEEN ANIMALS", "Spider Sheep · Ghosts · Skeleton Boars · Ghost Fish") if animals else
+              ("HALLOWEEN", "Spiders · Ghosts · Haunted Woods · Pumpkin Farms")))
+    for text, f, y, fill in ((lines[0], title, 22, (255, 150, 34)), (lines[1], sub, 160, (236, 226, 210))):
         tw = d.textlength(text, font=f)
         x = (out.size[0] - tw) / 2
         d.text((x, y), text, font=f, fill=fill, stroke_width=6 if f is title else 3, stroke_fill=(20, 8, 4))
@@ -100,4 +110,7 @@ def main(out_path):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(MOD, "thumbnail.jpg"))
+    if "--animals" in sys.argv:
+        main(os.path.join(ANIMALS_MOD, "thumbnail.jpg"), animals=True)
+    else:
+        main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(MOD, "thumbnail.jpg"))

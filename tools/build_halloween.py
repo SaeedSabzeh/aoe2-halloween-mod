@@ -258,7 +258,7 @@ def _haunt_trap(fr, seed):
     return fr
 
 
-def haunted_water():
+def haunted_water(traps=True):
     """Ghost fish (all types, above and under water) and cobwebbed fish traps."""
     import ghost
     for f in sorted(os.listdir(modkit.GAME_GFX)):
@@ -267,7 +267,7 @@ def haunted_water():
         if f.startswith("a_fish_"):
             hdr, frames = sld.read(modkit.GAME_GFX + f)
             out = [ghost.ghostify(fr, opacity=0.85, float_px=0, wisp=False, shadow=0) for fr in frames]
-        elif f.startswith("b_misc_fish_trap") and "foundation" not in f:
+        elif traps and f.startswith("b_misc_fish_trap") and "foundation" not in f:
             hdr, frames = sld.read(modkit.GAME_GFX + f)
             out = [_haunt_trap(fr, 77) for fr in frames]
         else:
@@ -342,7 +342,11 @@ def pastures():
         _paste(fr, sk, cx - sk.shape[1] // 2, max(0, top - 1))
     sld.write(os.path.join(GFX_OUT, "b_dark_pasture_corner_posts_x1.sld"), hdr, frames)
     print("b_dark_pasture_corner_posts_x1: skulls", flush=True)
+    pasture_ibex()
 
+
+def pasture_ibex():
+    """The pasture's ibex is a herd animal too, so it becomes a spider sheep."""
     S = creatures.spider_sheep
     for name, fn in (("a_pasture_ibex_idleA_x1", anim(S, (52, 44), "idle")),
                      ("a_pasture_ibex_deathA_x1", anim(S, (52, 44), "dead", dying=True)),
