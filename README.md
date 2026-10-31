@@ -45,6 +45,8 @@ It only changes graphics, so it works in multiplayer and ranked, and other playe
 
 Subscribe on the [mod page](https://www.ageofempires.com/mods/details/562122), or search for
 "Halloween" in the game's mod browser (**Mods → Browse Mods**). You can also build it yourself (below).
+If you only want the creatures (and keep your own tree or grid mods), use
+[Halloween Animals](https://www.ageofempires.com/mods/details/572361) instead.
 Don't combine it with other mods that replace the same animals, trees or bushes.
 
 ## Build it yourself
@@ -65,7 +67,7 @@ A full build takes about half an hour, mostly rendering the spider animations.
 
 Two smaller mods build from the same toolkit:
 
-- `tools/build_animals.py` builds **Halloween Animals**: only the spider sheep, ghost animals,
+- `tools/build_animals.py` builds **[Halloween Animals](https://www.ageofempires.com/mods/details/572361)**: only the spider sheep, ghost animals,
   skeleton boars and ghost fish, with trees, bushes, farms and buildings left alone. It works
   alongside grid, tree and fish-border mods. Use it instead of the full mod, not together with it.
 - `tools/build_pizza.py` turns sheep into pizzas and berry bushes into ketchup bottles.
